@@ -1,32 +1,50 @@
 package finalproject.itsector.controller;
 
+import finalproject.itsector.JWT.provider.JwtTokenProvider;
 import finalproject.itsector.model.RegisteredUser;
-import finalproject.itsector.model.User;
 import finalproject.itsector.service.AuthenticationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
+//Rest Controller For Authentication EndPoint
 @RestController
+@Slf4j
 public class AuthenticationController{
     @Autowired
     private AuthenticationService service;
 
-    @GetMapping("/its-backoffice/login")
-    public User getUser(@RequestParam String username){
-        return service.getUserByUsername(username);
-    }
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/its-backoffice/login")
-    ResponseEntity<String> customHeader() {
-        return ResponseEntity.ok()
-                .header("Authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjaGlraXQiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE2Njk2NTkwMDB9.-D9bng8poWPfH6Lua4aKR0Iig0sUELjR43UW0XWo6GA")
-                .body("Custom header set");
+    public ResponseEntity customHeader(@RequestBody RegisteredUser data) {
+        try {
+            String username = data.getUsername();
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
+            String token = "Bearer "+jwtTokenProvider.createToken(username, service.loadUserByUsername(username).getRoles());
+            Map<Object, Object> model = new HashMap<>();
+            model.put("username", username);
+            model.put("token", token);
+            return ResponseEntity.ok()
+                    .header("Access-Control-Expose-Headers", "*")
+                    .header("Authorization", token)
+                    .body(model);
+        } catch (AuthenticationException e) {
+            log.error("Error: "+ e);
+            throw new BadCredentialsException("Invalid username/password supplied");
+        }
     }
-
-    /*@PostMapping("/its-backoffice/login")
-    public UserDetails login(@RequestParam String username){
-        return service.loadUserByUsername(username);
-    }*/
 }

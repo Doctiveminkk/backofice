@@ -1,16 +1,19 @@
 package finalproject.itsector.model;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 //Model Class
 @Entity
 @Setter
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "users")
 public class User extends BaseModel{
 
@@ -20,8 +23,7 @@ public class User extends BaseModel{
     private String password;
     @Column(nullable = false)
     private String name;
-    @Column(name = "createdTimestamp", nullable = false, updatable = false)
-    private LocalDate createdAt = LocalDate.now();
-    @Column(name = "updatedTimestamp")
-    private LocalDate updatedAt;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime creation = LocalDateTime.now();
+    private LocalDateTime lastUpdated;
 }
