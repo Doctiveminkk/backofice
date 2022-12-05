@@ -1,4 +1,4 @@
-# ITS-BackOffie
+# ITS-BackOffice
 
 Api with front-end request implementation.
 The requests are protected with JWT.
