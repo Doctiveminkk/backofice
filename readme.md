@@ -1,6 +1,7 @@
 # ITS-BackOffie
 
 Api with front-end request implementation.
+The requests are protected with JWT.
 
 [SwaggerDoc](http://localhost:8080/swagger-ui.html)
 
